@@ -8,8 +8,7 @@ public enum Booster {
     DRILLING_MACHINE(35, 700, 1.125f),
     ROADHEADER(65, 1500, 1.124f),
     TUNNEL_BORING_COMPLEX(125, 3500, 1.124f),
-    DWARF(250, 8000, 1.124f)
-    ;
+    DWARF(250, 8000, 1.124f);
 
     private final int boostAmount;
     private final int priceOfFirst;

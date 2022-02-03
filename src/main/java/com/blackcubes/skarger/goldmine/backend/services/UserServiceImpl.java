@@ -3,7 +3,9 @@ package com.blackcubes.skarger.goldmine.backend.services;
 import com.blackcubes.skarger.goldmine.backend.model.Booster;
 import com.blackcubes.skarger.goldmine.backend.model.User;
 import com.blackcubes.skarger.goldmine.backend.storage.UserDao;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -11,17 +13,19 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class UserServiceImpl implements UserService, Runnable {
+public class UserServiceImpl implements UserService {
 
-    Map<String, User> users = new ConcurrentHashMap<>();
+    private final Map<String, User> users = new ConcurrentHashMap<>();
 
     @Autowired
     private UserDao userDao;
 
+    @Value("${user.service.save.period:60000}")
+    private int savePeriod;
+
     @PostConstruct
     private void initialize() {
         userDao.loadUsers().forEach(user -> users.put(user.getId(), user));
-        run();
     }
 
     @Override
@@ -65,6 +69,14 @@ public class UserServiceImpl implements UserService, Runnable {
     }
 
     @Override
+    public void addBooster(String userId, Booster booster, int number) {
+        User user = users.get(userId);
+        if (user != null) {
+            user.addBooster(booster, number);
+        }
+    }
+
+    @Override
     public int getBoosterAmount(String userId, Booster booster) {
         return users.get(userId).getBoosterAmount(booster);
     }
@@ -80,8 +92,31 @@ public class UserServiceImpl implements UserService, Runnable {
     }
 
     @Override
+    public boolean buyBooster(String userId, Booster booster) {
+        User user = users.get(userId);
+        return user.buyBooster(booster);
+    }
+
+    @Override
+    public Map<Booster, Integer> getUserBoosters(String userId) {
+        final User user = users.get(userId);
+        return user.getBoosters();
+    }
+
+    @SneakyThrows
+    @Override
     public void run() {
-        // TODO периодическое сохранение данных
-        // TODO периодическая очистка users от пустых данных, которые могут генериться при вызове getUserById или isUserExists
+        long lastUpdate = System.currentTimeMillis();
+        while (true) {
+            if (System.currentTimeMillis() - lastUpdate > savePeriod) {
+                System.out.println("Update users call");
+                userDao.updateUsers(users);
+                lastUpdate = System.currentTimeMillis();
+            } else {
+                final long timeout = lastUpdate + savePeriod - System.currentTimeMillis();
+                System.out.println("User save delayed for " + timeout);
+                Thread.sleep(timeout);
+            }
+        }
     }
 }

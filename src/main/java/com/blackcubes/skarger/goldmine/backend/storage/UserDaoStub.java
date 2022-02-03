@@ -31,6 +31,11 @@ public class UserDaoStub implements UserDao {
         return new ArrayList<>(users.values());
     }
 
+    @Override
+    public void updateUsers(Map<String, User> users) {
+        users.forEach(this.users::put);
+    }
+
     private void generateUsers(int number) {
         for (int i = 0; i < number; i++) {
             User user = generateUser();

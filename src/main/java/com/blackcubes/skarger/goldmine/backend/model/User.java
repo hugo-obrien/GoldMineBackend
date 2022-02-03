@@ -18,7 +18,11 @@ public class User {
     }
 
     public void addBooster(Booster booster) {
-        boosters.compute(booster, (k, v) -> (v == null) ? 1 : v + 1);
+        addBooster(booster, 1);
+    }
+
+    public void addBooster(Booster booster, int number) {
+        boosters.compute(booster, (k, v) -> (v == null) ? number : v + number);
     }
 
     public int getBoosterAmount(Booster booster) {
@@ -32,7 +36,7 @@ public class User {
             return booster.priceOfFirst();
         } else {
             long price = booster.priceOfFirst();
-            for (int i = 1; i<=amount; i++) {
+            for (int i = 1; i <= amount; i++) {
                 price = Math.round(price * booster.priceIncrease());
             }
             return price;
@@ -65,5 +69,15 @@ public class User {
             additionalGold.addAndGet(booster.boostAmount() * integer);
         });
         goldAmount += additionalGold.get();
+    }
+
+    public boolean buyBooster(Booster booster) {
+        long boosterPrice = calculateBoosterPrice(booster);
+        if (boosterPrice > goldAmount) {
+            return false;
+        }
+        goldAmount -= boosterPrice;
+        addBooster(booster);
+        return true;
     }
 }

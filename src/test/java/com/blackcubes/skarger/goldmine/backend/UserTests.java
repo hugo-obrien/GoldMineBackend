@@ -5,7 +5,9 @@ import com.blackcubes.skarger.goldmine.backend.model.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class UserTest {
+import static com.blackcubes.skarger.goldmine.backend.TestUtils.printHighlighted;
+
+public class UserTests {
 
     @Test
     public void addBoosterTest() {
@@ -27,7 +29,7 @@ public class UserTest {
         }
         final int amount = user.getBoosterAmount(shovel);
         final long priceOfNext = user.calculateBoosterPrice(shovel);
-        System.out.printf("Boosters: %s. Price of next: %s%n", amount, priceOfNext);
+        printHighlighted("Boosters: %s. Price of next: %s%n", amount, priceOfNext);
         Assertions.assertTrue(priceOfNext > shovel.priceOfFirst());
     }
 
@@ -42,7 +44,7 @@ public class UserTest {
         user.multiplePecks((int) pecks);
         final long afterMultiplePecks = user.getGoldAmount();
         Assertions.assertEquals(afterFirstPeck + pecks, afterMultiplePecks);
-        System.out.printf("Initial gold: %s, after first peck: %s, after %s pecks: %s%n",
+        printHighlighted("Initial gold: %s, after first peck: %s, after %s pecks: %s%n",
                 initialGold, afterFirstPeck, pecks, afterMultiplePecks);
     }
 }
