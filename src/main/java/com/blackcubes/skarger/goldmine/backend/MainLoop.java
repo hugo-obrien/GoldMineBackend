@@ -25,7 +25,6 @@ public class MainLoop implements Runnable {
     @Override
     public void run() {
 
-        //ping github
         services.put("UserService", executorService.submit(new Thread(userService, "UserService")));
 
         while (true) {
